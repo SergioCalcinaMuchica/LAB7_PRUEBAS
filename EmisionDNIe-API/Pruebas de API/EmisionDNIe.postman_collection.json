@@ -1,0 +1,432 @@
+{
+  "info": {
+    "name": "EmisionDNIe - Pruebas de Aceptación (BDD)",
+    "description": "Colección de pruebas de aceptación para el servicio REST de Solicitudes de DNIe, organizada por feature siguiendo el enfoque BDD (Given-When-Then).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Feature - Registrar Solicitud DNIe",
+      "item": [
+        {
+          "name": "Crear solicitud de DNIe (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni_ciudadano\": \"12345678\",\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Perez\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN un ciudadano con DNI valido de 8 digitos y datos completos",
+                  "// no se requiere precondicion adicional en el servidor"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un POST a /api/solicitudes-dnie",
+                  "",
+                  "// THEN la respuesta debe ser 201 Created",
+                  "pm.test('Status code es 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// AND el cuerpo debe contener la solicitud creada con estado REGISTRADA",
+                  "pm.test('La solicitud fue creada con estado REGISTRADA', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id_solicitud).to.be.a('number');",
+                  "    pm.expect(jsonData.estado).to.eql('REGISTRADA');",
+                  "    pm.expect(jsonData.dni_ciudadano).to.eql('12345678');",
+                  "});",
+                  "",
+                  "// AND el tiempo de respuesta debe ser menor a 5 segundos",
+                  "pm.test('Tiempo de respuesta menor a 5s', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "// Guardamos el id generado para reutilizarlo en los siguientes requests",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('id_solicitud_creada', jsonData.id_solicitud);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rechazar solicitud con DNI invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni_ciudadano\": \"123\",\n  \"nombres\": \"Juan\",\n  \"apellidos\": \"Perez\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN un DNI con menos de 8 digitos (dato invalido)"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un POST con dni_ciudadano invalido",
+                  "",
+                  "// THEN la respuesta debe ser 400 Bad Request",
+                  "pm.test('Status code es 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('El mensaje de error es informativo', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Feature - Consultar Solicitud DNIe",
+      "item": [
+        {
+          "name": "Consultar solicitud existente (200)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie/{{id_solicitud_creada}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie", "{{id_solicitud_creada}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN una solicitud previamente registrada (id_solicitud_creada)",
+                  "pm.test('Precondicion: existe un id_solicitud_creada', function () {",
+                  "    pm.expect(pm.environment.get('id_solicitud_creada')).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un GET a /api/solicitudes-dnie/{id}",
+                  "",
+                  "// THEN la respuesta debe ser 200 OK",
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// AND debe retornar la solicitud correcta",
+                  "pm.test('El id retornado coincide con el solicitado', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(String(jsonData.id_solicitud)).to.eql(pm.environment.get('id_solicitud_creada'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar solicitud inexistente (404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie/999999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN un id de solicitud que no existe en el sistema"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un GET a /api/solicitudes-dnie/999999",
+                  "",
+                  "// THEN la respuesta debe ser 404 Not Found",
+                  "pm.test('Status code es 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Feature - Listar Solicitudes DNIe",
+      "item": [
+        {
+          "name": "Listar todas las solicitudes (200)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN que existe al menos una solicitud registrada previamente"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un GET a /api/solicitudes-dnie",
+                  "",
+                  "// THEN la respuesta debe ser 200 OK",
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// AND debe retornar un arreglo no vacio",
+                  "pm.test('La lista de solicitudes no esta vacia', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    pm.expect(jsonData.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Feature - Actualizar Solicitud DNIe",
+      "item": [
+        {
+          "name": "Actualizar estado a HUELLAS_CAPTURADAS (200)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"HUELLAS_CAPTURADAS\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie/{{id_solicitud_creada}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie", "{{id_solicitud_creada}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN una solicitud en estado REGISTRADA",
+                  "// (creada en el request 'Crear solicitud de DNIe')"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un PUT cambiando el estado a HUELLAS_CAPTURADAS",
+                  "",
+                  "// THEN la respuesta debe ser 200 OK",
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// AND el estado debe reflejar el cambio solicitado",
+                  "pm.test('El estado fue actualizado correctamente', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.estado).to.eql('HUELLAS_CAPTURADAS');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar solicitud inexistente (404)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"HABILITADA\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie/999999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN un id de solicitud que no existe"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un PUT a un id inexistente",
+                  "",
+                  "// THEN la respuesta debe ser 404 Not Found",
+                  "pm.test('Status code es 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Feature - Eliminar Solicitud DNIe",
+      "item": [
+        {
+          "name": "Eliminar solicitud existente (204)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie/{{id_solicitud_creada}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie", "{{id_solicitud_creada}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN una solicitud previamente registrada y actualizada"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un DELETE a /api/solicitudes-dnie/{id}",
+                  "",
+                  "// THEN la respuesta debe ser 204 No Content",
+                  "pm.test('Status code es 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar solicitud eliminada (404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/solicitudes-dnie/{{id_solicitud_creada}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "solicitudes-dnie", "{{id_solicitud_creada}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// GIVEN una solicitud que acaba de ser eliminada"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// WHEN se envia un GET a la solicitud eliminada",
+                  "",
+                  "// THEN la respuesta debe ser 404 Not Found",
+                  "pm.test('Status code es 404 tras eliminar', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
