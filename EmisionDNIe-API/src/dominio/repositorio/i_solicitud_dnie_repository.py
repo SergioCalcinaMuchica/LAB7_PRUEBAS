@@ -1,10 +1,3 @@
-"""
-Módulo: dominio.repositorio
-Interfaz (puerto de salida) que define el contrato de persistencia para
-SolicitudDNIe. La capa de dominio no conoce la tecnología de
-infraestructura (SQLAlchemy, memoria, etc.) que la implementa.
-"""
-
 from abc import ABC, abstractmethod
 from typing import List, Optional
 

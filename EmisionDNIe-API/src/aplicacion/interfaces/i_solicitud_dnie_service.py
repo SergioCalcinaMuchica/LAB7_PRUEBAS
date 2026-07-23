@@ -1,9 +1,3 @@
-"""
-Módulo: aplicacion.interfaces
-Contrato de la capa de aplicación: coordina los casos de uso del negocio
-sobre SolicitudDNIe (crear, buscar, listar, actualizar, eliminar).
-"""
-
 from abc import ABC, abstractmethod
 from typing import List, Optional
 

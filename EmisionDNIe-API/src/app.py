@@ -1,9 +1,3 @@
-"""
-Composition root de la aplicación.
-Ensambla infraestructura -> aplicación -> presentación, e inicia el
-servidor Flask con el Blueprint de solicitudes de DNIe.
-"""
-
 from flask import Flask
 
 from src.aplicacion.servicios.solicitud_dnie_service import SolicitudDNIeService

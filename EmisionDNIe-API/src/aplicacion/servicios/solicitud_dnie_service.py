@@ -1,10 +1,3 @@
-"""
-Módulo: aplicacion.servicios
-Implementación de los casos de uso de negocio para SolicitudDNIe.
-Coordina el dominio con el repositorio (infraestructura) inyectado por
-constructor, siguiendo el Principio de Inversión de Dependencias (SOLID).
-"""
-
 from typing import List, Optional
 
 from src.aplicacion.interfaces.i_solicitud_dnie_service import ISolicitudDNIeService

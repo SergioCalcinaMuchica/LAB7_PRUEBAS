@@ -1,20 +1,3 @@
-"""
-Módulo: presentacion.controladores
-Controlador REST (Blueprint Flask) para el recurso "solicitudes-dnie".
-
-Cada operación corresponde a una feature / historia de usuario del
-proceso "Emisión de DNI Electrónico":
-  - Crear solicitud de DNIe
-  - Consultar solicitud de DNIe
-  - Listar solicitudes de DNIe
-  - Actualizar solicitud de DNIe (incluye transición de estado)
-  - Eliminar / cancelar solicitud de DNIe
-
-Diseñado pensando en integración futura con Bonita BPM: respuestas JSON
-estables y códigos HTTP explícitos (200/201/400/404) para que un
-conector REST de Bonita pueda evaluar el resultado de cada tarea.
-"""
-
 from flask import Blueprint, jsonify, request
 
 from src.aplicacion.interfaces.i_solicitud_dnie_service import ISolicitudDNIeService

@@ -1,16 +1,3 @@
-"""
-Módulo: dominio.modelo
-Entidad de dominio: SolicitudDNIe
-
-Representa una solicitud de Emisión de DNI Electrónico dentro del proceso
-RENIEC: Digitar DNIe -> Capturar Huellas -> Fotografía Digital ->
-Habilitar Emisión -> Entregar DNIe.
-
-El campo `estado` funciona como una máquina de estados finita. Se deja
-explícito para que, a futuro, el proceso BPM (Bonita) pueda sincronizar
-sus tareas con los mismos valores de estado expuestos por esta API.
-"""
-
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum

@@ -1,19 +1,3 @@
-"""
-Módulo: infraestructura.repositorio
-Implementación concreta de ISolicitudDNIeRepository.
-
-NOTA IMPORTANTE:
-Esta implementación usa un diccionario en memoria a modo de "Fake" de base
-de datos, tal como sugiere la guía del laboratorio en el punto 6:
-  "Durante la implementación, usar dobles de prueba para simular
-   componentes ausentes o incompletos (Mocks o Fakes de Bases de Datos)."
-
-Para producción, reemplazar esta clase por una que use
-Flask-SQLAlchemy (SQLAlchemyRepositoryImpl) sin tocar la capa de
-aplicación ni de dominio, gracias a que ambas dependen únicamente
-de la interfaz ISolicitudDNIeRepository.
-"""
-
 from itertools import count
 from typing import Dict, List, Optional
 
